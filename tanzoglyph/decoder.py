@@ -8,6 +8,8 @@ back into structured AI personality profiles.
 
 import re
 import logging
+import yaml
+import json
 from typing import Dict, Any, List, Union, Tuple
 
 from registry.glyph_maps import (
@@ -19,16 +21,20 @@ from registry.glyph_maps import (
     projection as projection_map
 )
 
+# Import tomotanzo adapter
+from tanzoglyph.tomotanzo_adapter import adapt_tanzoglyph_to_tomotanzo
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-def decode_glyph(glyph: str) -> Dict[str, Any]:
+def decode_glyph(glyph: str, to_tomotanzo: bool = False) -> Dict[str, Any]:
     """
     Decode a TanzoGlyph character stream back into a structured profile.
     
     Args:
         glyph: A string of Unicode characters representing an encoded profile
+        to_tomotanzo: If True, converts the decoded profile to tomotanzo-core format
         
     Returns:
         A dictionary containing the decoded profile data
@@ -84,6 +90,16 @@ def decode_glyph(glyph: str) -> Dict[str, Any]:
         
         if not profile:
             raise ValueError("No decodable elements found in glyph")
+        
+        # Add basic metadata
+        profile['name'] = "TanzoGlyph Generated Profile"
+        profile['description'] = "Profile decoded from TanzoGlyph character stream"
+        profile['version'] = "0.1.0"
+        
+        # Convert to tomotanzo format if requested
+        if to_tomotanzo:
+            logger.info("Converting decoded profile to tomotanzo-core format")
+            return adapt_tanzoglyph_to_tomotanzo(profile)
         
         return profile
         

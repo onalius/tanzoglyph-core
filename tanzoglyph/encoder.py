@@ -21,6 +21,9 @@ from registry.glyph_maps import (
     projection as projection_map
 )
 
+# Import tomotanzo adapter
+from tanzoglyph.tomotanzo_adapter import adapt_tomotanzo_to_tanzoglyph
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -38,6 +41,16 @@ def encode_profile(profile: Dict[str, Any]) -> str:
     Raises:
         ValueError: If the profile structure is invalid or unsupported
     """
+    # Check if this is a tomotanzo-core profile and adapt if needed
+    if 'profile' in profile and ('parent_archetypes' in profile.get('profile', {}) or 
+                                'development' in profile.get('profile', {})):
+        logger.info("Detected tomotanzo-core profile format, adapting...")
+        # Convert to TanzoGlyph format
+        adapted_profile = adapt_tomotanzo_to_tanzoglyph(profile)
+    else:
+        # Use profile as-is
+        adapted_profile = profile
+    
     # Initialize sections for different character classes
     traits_glyphs = ""
     archetype_glyphs = ""
@@ -48,29 +61,29 @@ def encode_profile(profile: Dict[str, Any]) -> str:
     
     try:
         # Process traits (Latin A-Z)
-        if 'traits' in profile:
-            traits_glyphs = encode_traits(profile['traits'])
+        if 'traits' in adapted_profile:
+            traits_glyphs = encode_traits(adapted_profile['traits'])
         
         # Process archetypes (Cyrillic)
-        if 'archetypes' in profile:
-            archetype_glyphs = encode_archetypes(profile['archetypes'])
+        if 'archetypes' in adapted_profile:
+            archetype_glyphs = encode_archetypes(adapted_profile['archetypes'])
         
         # Process spiritual arcs (Greek)
-        if 'spiritual_arcs' in profile or 'spiritualArcs' in profile:
-            arcs = profile.get('spiritual_arcs') or profile.get('spiritualArcs', {})
+        if 'spiritual_arcs' in adapted_profile or 'spiritualArcs' in adapted_profile:
+            arcs = adapted_profile.get('spiritual_arcs') or adapted_profile.get('spiritualArcs', {})
             spiritual_arc_glyphs = encode_spiritual_arcs(arcs)
         
         # Process mood profile (Half-width Kana)
-        if 'mood' in profile:
-            mood_glyphs = encode_mood(profile['mood'])
+        if 'mood' in adapted_profile:
+            mood_glyphs = encode_mood(adapted_profile['mood'])
         
         # Process scars (Braille)
-        if 'scars' in profile:
-            scars_glyphs = encode_scars(profile['scars'])
+        if 'scars' in adapted_profile:
+            scars_glyphs = encode_scars(adapted_profile['scars'])
         
         # Process projection/style (Block Drawing)
-        if 'projection' in profile or 'style' in profile:
-            proj_data = profile.get('projection') or profile.get('style', {})
+        if 'projection' in adapted_profile or 'style' in adapted_profile:
+            proj_data = adapted_profile.get('projection') or adapted_profile.get('style', {})
             projection_glyphs = encode_projection(proj_data)
         
         # Combine all sections into a single glyph string

@@ -95,8 +95,11 @@ def decode():
             if not glyph_text:
                 raise ValueError("No TanzoGlyph text provided")
             
+            # Check if tomotanzo format is requested
+            to_tomotanzo = request.form.get('to_tomotanzo') == 'on'
+            
             # Decode the glyph
-            decoded_profile = decode_glyph(glyph_text)
+            decoded_profile = decode_glyph(glyph_text, to_tomotanzo=to_tomotanzo)
             
             # Format as requested
             output_format = request.form.get('output_format', 'yaml')
@@ -117,6 +120,10 @@ def decode():
                 return send_file(temp_path, as_attachment=True, download_name=filename)
             
             flash('Decoding successful!', 'success')
+            
+            # Add format info to flash message
+            if to_tomotanzo:
+                flash('Decoded to tomotanzo-core format', 'info')
             
         except Exception as e:
             logger.error(f"Decoding error: {str(e)}")
@@ -153,7 +160,8 @@ def api_decode():
             return jsonify({'success': False, 'error': 'No glyph provided'}), 400
         
         glyph = data['glyph']
-        decoded = decode_glyph(glyph)
+        to_tomotanzo = data.get('to_tomotanzo', False)
+        decoded = decode_glyph(glyph, to_tomotanzo=to_tomotanzo)
         
         output_format = data.get('format', 'json')
         if output_format == 'yaml':
