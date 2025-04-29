@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decode - TanzoGlyph Encoding System</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="tanzoglyph-brand">ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ▇▆▂</span>
+                <span class="ms-2">TanzoGlyph</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/encode">Encode</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/decode">Decode</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="mb-4">Decode TanzoGlyph to Profile</h1>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form action="/decode" method="post">
+                            <div class="mb-3">
+                                <label for="glyph_text" class="form-label">TanzoGlyph</label>
+                                <textarea class="form-control" id="glyph_text" name="glyph_text" rows="3" placeholder="Paste your TanzoGlyph here...">{{ request.args.get('glyph', '') }}</textarea>
+                                <div class="form-text">Enter the TanzoGlyph character stream to decode.</div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="output_format" class="form-label">Output Format</label>
+                                        <select class="form-select" id="output_format" name="output_format">
+                                            <option value="yaml" selected>YAML</option>
+                                            <option value="json">JSON</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3 form-check mt-4">
+                                        <input type="checkbox" class="form-check-input" id="save_file" name="save_file">
+                                        <label class="form-check-label" for="save_file">Download result as file</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Decode Glyph</button>
+                        </form>
+                    </div>
+                </div>
+                
+                {% if result %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Decoding Result</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-3 text-muted">Decoded Profile</h6>
+                        <pre class="profile-result p-3 mb-3"><code>{{ result }}</code></pre>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-sm btn-secondary" onclick="copyToClipboard(document.querySelector('.profile-result code').textContent)">
+                                Copy to Clipboard
+                            </button>
+                            <a href="/encode" class="btn btn-sm btn-outline-primary">
+                                Encode a New Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">TanzoGlyph Character Guide</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>TanzoGlyph uses different Unicode character sets to represent personality components:</p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-transparent"><strong>Traits (Latin A-Z):</strong> <span class="text-latin">AaBbCcDdEe</span> - Maps to personality traits like Openness and Creativity</li>
+                            <li class="list-group-item bg-transparent"><strong>Archetypes (Cyrillic):</strong> <span class="text-cyrillic">АБВГДЕЖЗ</span> - Represents character archetypes like Creator or Explorer</li>
+                            <li class="list-group-item bg-transparent"><strong>Spiritual Arcs (Greek):</strong> <span class="text-greek">ΑΒΓΔΕΖΗ</span> - Encodes developmental journeys like Awakening or Transformation</li>
+                            <li class="list-group-item bg-transparent"><strong>Mood (Half-width Kana):</strong> <span class="text-kana">ｱｲｳｴｵｶｷｸｹｺ</span> - Represents emotional states</li>
+                            <li class="list-group-item bg-transparent"><strong>Scars (Braille):</strong> <span class="text-braille">⠁⠃⠇⠏⠟⠋⠓⠊⠥⠵</span> - Encodes psychological traumas or challenges</li>
+                            <li class="list-group-item bg-transparent"><strong>Projection (Block Drawing):</strong> <span class="text-block">█▓▒░▀▄▌▐</span> - Represents style and presence attributes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-dark">
+        <div class="container text-center">
+            <span class="text-muted">TanzoGlyph Encoding System &copy; 2023</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Profile copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

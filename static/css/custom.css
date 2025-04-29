@@ -1,0 +1,132 @@
+/* TanzoGlyph Custom Styles */
+
+/* Glyph styling */
+.tanzoglyph-brand {
+    font-family: monospace;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, rgba(130,130,255,1) 0%, rgba(0,212,255,1) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.glyph-example {
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sample-glyph {
+    font-family: monospace;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+    color: #0f0;
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+.glyph-result {
+    font-family: monospace;
+    background-color: #1a1a1a;
+    border-radius: 5px;
+    padding: 15px;
+    overflow-x: auto;
+    white-space: nowrap;
+    color: #0f0;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+.profile-result {
+    background-color: #1a1a1a;
+    border-radius: 5px;
+    font-family: monospace;
+    overflow-x: auto;
+    max-height: 400px;
+}
+
+/* Character class styling */
+.text-latin {
+    color: #a8dadc;
+}
+
+.text-cyrillic {
+    color: #e63946;
+}
+
+.text-greek {
+    color: #4cc9f0;
+}
+
+.text-kana {
+    color: #f72585;
+}
+
+.text-braille {
+    color: #ffd166;
+}
+
+.text-block {
+    color: #06d6a0;
+}
+
+/* Feature list styling */
+.feature-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.feature-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-list li:last-child {
+    border-bottom: none;
+}
+
+.feature-list li i {
+    margin-right: 10px;
+    color: var(--bs-primary);
+}
+
+/* Matrix effect animation */
+@keyframes glow {
+    from {
+        text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+    }
+    to {
+        text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 30px #0f0;
+    }
+}
+
+/* Card styling */
+.card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Code highlighting */
+pre code.language-yaml {
+    display: block;
+    overflow-x: auto;
+    padding: 1em;
+    background: #1a1a1a;
+    color: #ddd;
+    font-family: monospace;
+}
+
+/* Footer styling */
+.footer {
+    margin-top: 50px;
+    padding: 20px 0;
+}

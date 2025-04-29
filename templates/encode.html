@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encode - TanzoGlyph Encoding System</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="tanzoglyph-brand">ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ▇▆▂</span>
+                <span class="ms-2">TanzoGlyph</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/encode">Encode</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/decode">Decode</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="mb-4">Encode Profile to TanzoGlyph</h1>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form action="/encode" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="profile-source" class="form-label">Profile Source</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="profile_source" id="source-file" value="file" checked>
+                                    <label class="form-check-label" for="source-file">
+                                        Upload File
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="profile_source" id="source-text" value="text">
+                                    <label class="form-check-label" for="source-text">
+                                        Paste Profile Text
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div id="file-upload-section" class="mb-3">
+                                <label for="file" class="form-label">Upload YAML or JSON file</label>
+                                <input type="file" class="form-control" id="file" name="file" accept=".yaml,.yml,.json">
+                                <div class="form-text">Select a YAML or JSON file containing an AI personality profile.</div>
+                            </div>
+                            
+                            <div id="text-input-section" class="mb-3" style="display: none;">
+                                <label for="profile_text" class="form-label">Profile Text (YAML or JSON)</label>
+                                <textarea class="form-control" id="profile_text" name="profile_text" rows="12" placeholder="Paste your YAML or JSON profile here..."></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="output_format" class="form-label">Output Format</label>
+                                        <select class="form-select" id="output_format" name="output_format">
+                                            <option value="tomo" selected>.tomo</option>
+                                            <option value="glyph">.glyph</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3 form-check mt-4">
+                                        <input type="checkbox" class="form-check-input" id="save_file" name="save_file">
+                                        <label class="form-check-label" for="save_file">Download result as file</label>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="matrix_effect" name="matrix_effect">
+                                        <label class="form-check-label" for="matrix_effect">Display as Matrix effect</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Encode Profile</button>
+                        </form>
+                    </div>
+                </div>
+                
+                {% if result %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Encoding Result</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if matrix_html %}
+                            {{ matrix_html|safe }}
+                        {% else %}
+                            <h6 class="card-subtitle mb-3 text-muted">TanzoGlyph</h6>
+                            <div class="glyph-result p-3 mb-3">
+                                {{ result }}
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-sm btn-secondary" onclick="copyToClipboard('{{ result }}')">
+                                    Copy to Clipboard
+                                </button>
+                                <a href="/decode?glyph={{ result }}" class="btn btn-sm btn-outline-primary">
+                                    Decode this Glyph
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Example Profile</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre><code class="language-yaml">name: Kai
+version: 1.0.0
+traits:
+  openness: 0.8
+  conscientiousness: 0.6
+  creativity: 0.9
+  
+archetypes:
+  creator: 0.9
+  explorer: 0.7
+  
+spiritual_arcs:
+  awakening:
+    progress: 0.6
+  
+mood:
+  current:
+    curiosity: 0.8
+    enthusiasm: 0.7
+    
+scars:
+  isolation:
+    intensity: 0.5
+    
+projection:
+  presence: 0.7
+  fluidity: 0.8</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-dark">
+        <div class="container text-center">
+            <span class="text-muted">TanzoGlyph Encoding System &copy; 2023</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sourceFileRadio = document.getElementById('source-file');
+            const sourceTextRadio = document.getElementById('source-text');
+            const fileUploadSection = document.getElementById('file-upload-section');
+            const textInputSection = document.getElementById('text-input-section');
+            
+            // Toggle visibility based on selected source
+            function toggleInputSections() {
+                if (sourceFileRadio.checked) {
+                    fileUploadSection.style.display = 'block';
+                    textInputSection.style.display = 'none';
+                } else {
+                    fileUploadSection.style.display = 'none';
+                    textInputSection.style.display = 'block';
+                }
+            }
+            
+            // Initial setup
+            toggleInputSections();
+            
+            // Add event listeners
+            sourceFileRadio.addEventListener('change', toggleInputSections);
+            sourceTextRadio.addEventListener('change', toggleInputSections);
+        });
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Glyph copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
