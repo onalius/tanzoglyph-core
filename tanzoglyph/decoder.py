@@ -10,7 +10,7 @@ import re
 import logging
 import yaml
 import json
-from typing import Dict, Any, List, Union, Tuple
+from typing import Dict, Any, List, Union, Tuple, Optional
 
 from registry.glyph_maps import (
     traits as traits_map,
@@ -302,7 +302,7 @@ def decode_inflection(inflection_chars: str) -> Dict[str, str]:
     return inflection
 
 # Helper function for file operations
-def decode_file(file_path: str, output_path: str = None, output_format: str = 'yaml') -> Dict[str, Any]:
+def decode_file(file_path: str, output_path: Optional[str] = None, output_format: str = 'yaml') -> Dict[str, Any]:
     """
     Read a TanzoGlyph file and decode its contents to YAML/JSON.
     
