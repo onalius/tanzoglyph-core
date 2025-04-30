@@ -18,7 +18,9 @@ from registry.glyph_maps import (
     spiritual_arcs as spiritual_arcs_map,
     mood as mood_map,
     scars as scars_map,
-    projection as projection_map
+    projection as projection_map,
+    intensity as intensity_map,
+    inflection as inflection_map
 )
 
 # Import tomotanzo adapter

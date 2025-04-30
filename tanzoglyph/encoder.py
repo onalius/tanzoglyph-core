@@ -18,7 +18,9 @@ from registry.glyph_maps import (
     spiritual_arcs as spiritual_arcs_map,
     mood as mood_map,
     scars as scars_map,
-    projection as projection_map
+    projection as projection_map,
+    intensity as intensity_map,
+    inflection as inflection_map
 )
 
 # Import tomotanzo adapter
@@ -86,15 +88,27 @@ def encode_profile(profile: Dict[str, Any]) -> str:
             proj_data = adapted_profile.get('projection') or adapted_profile.get('style', {})
             projection_glyphs = encode_projection(proj_data)
         
+            # Process intensity values (Geometric Shapes)
+        intensity_glyphs = ""
+        if 'intensity' in adapted_profile:
+            intensity_glyphs = encode_intensity(adapted_profile['intensity'])
+            
+        # Process inflection patterns (Arrows)
+        inflection_glyphs = ""
+        if 'inflection' in adapted_profile:
+            inflection_glyphs = encode_inflection(adapted_profile['inflection'])
+        
         # Combine all sections into a single glyph string
-        # Order: Greek, Braille, Latin, Kana, Cyrillic, Block Drawing
+        # Order: Greek, Braille, Latin, Kana, Cyrillic, Block Drawing, Geometric Shapes, Arrows
         tanzoglyph = (
             spiritual_arc_glyphs +
             scars_glyphs +
             traits_glyphs +
             mood_glyphs +
             archetype_glyphs +
-            projection_glyphs
+            projection_glyphs +
+            intensity_glyphs +
+            inflection_glyphs
         )
         
         if not tanzoglyph:
@@ -293,6 +307,49 @@ def encode_projection(projection: Dict[str, Any]) -> str:
             result += char
         elif isinstance(value, str):
             char = projection_map.encode_projection_descriptor(attr, value)
+            result += char
+    
+    return result
+
+def encode_intensity(intensity: Dict[str, Any]) -> str:
+    """
+    Encode intensity values using Geometric Shape characters.
+    
+    Args:
+        intensity: Dictionary of intensity metrics with their values (0.0-1.0)
+        
+    Returns:
+        Geometric Shape character string representing encoded intensity levels
+    """
+    result = ""
+    
+    # Handle intensity metrics
+    for metric, value in intensity.items():
+        if isinstance(value, (int, float)):
+            # Normalize to range 0-1 if needed
+            normalized = max(0.0, min(float(value), 1.0))
+            # Encode as geometric shapes
+            char_sequence = intensity_map.encode_intensity(normalized)
+            result += char_sequence
+    
+    return result
+
+def encode_inflection(inflection: Dict[str, Any]) -> str:
+    """
+    Encode inflection patterns using Arrow characters.
+    
+    Args:
+        inflection: Dictionary of inflection patterns for different metrics
+        
+    Returns:
+        Arrow character string representing encoded inflection patterns
+    """
+    result = ""
+    
+    # Handle various inflection patterns
+    for metric, pattern in inflection.items():
+        if isinstance(pattern, str):
+            char = inflection_map.encode_inflection(pattern)
             result += char
     
     return result
