@@ -16,6 +16,8 @@ TanzoGlyph maps different personality components to specific Unicode character b
 - **Mood** → Half-width Kana characters
 - **Scars** → Braille characters
 - **Projection** → Block Drawing characters
+- **Intensity** → Geometric Shape characters
+- **Inflection** → Arrow characters
 
 ## Features
 
@@ -58,7 +60,7 @@ python -m tanzoglyph.cli encode examples/personas/kai.yaml
 python -m tanzoglyph.cli decode encoded.tomo
 
 # Display a TanzoGlyph in Matrix-style format
-python -m tanzoglyph.cli display "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ▇▆▂"
+python -m tanzoglyph.cli display "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ▇▆▂●◌○↑→↓"
 ```
 
 ### Web Interface
@@ -101,7 +103,7 @@ curl -X POST -H "Content-Type: application/json" \
 
 # Decode a glyph
 curl -X POST -H "Content-Type: application/json" \
-  -d '{"glyph": "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ▇▆▂", "to_tomotanzo": true}' \
+  -d '{"glyph": "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ▇▆▂●◌○↑→↓", "to_tomotanzo": true}' \
   http://localhost:5000/api/decode
 ```
 
@@ -124,7 +126,9 @@ tanzoglyph/
 │       ├── spiritual_arcs.py   # Spiritual arcs mapping (Greek)
 │       ├── mood.py             # Mood mapping (Half-width Kana)
 │       ├── scars.py            # Scars mapping (Braille)
-│       └── projection.py       # Projection mapping (Block Drawing)
+│       ├── projection.py       # Projection mapping (Block Drawing)
+│       ├── intensity.py        # Intensity mapping (Geometric Shapes)
+│       └── inflection.py       # Inflection mapping (Arrows)
 ├── templates/                  # Web interface templates
 │   ├── index.html              # Main page
 │   ├── encode.html             # Encoding page

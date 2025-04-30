@@ -85,3 +85,13 @@ site/
 
 # Temporary files directory
 temp_repo/
+
+# mypy cache
+.mypy_cache/
+
+# poetry lock file (optional, some projects track this, others don't)
+# poetry.lock
+
+# pytest coverage reports
+coverage.xml
+*.cover
