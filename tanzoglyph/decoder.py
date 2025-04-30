@@ -59,6 +59,13 @@ def decode_glyph(glyph: str, to_tomotanzo: bool = False) -> Dict[str, Any]:
         scars_chars = re.findall(r'[⠀-⣿]+', glyph)  # Braille
         projection_chars = re.findall(r'[▀-▟█-░]+', glyph)  # Block Drawing
         
+        # Extract new character classes
+        intensity_pattern = r'[○◔◑◕●◆■▲◉◎◌]+'  # Geometric Shapes for intensity
+        intensity_chars = re.findall(intensity_pattern, glyph)
+        
+        inflection_pattern = r'[⇑↑↗→↘↓⇓↔⤊⤋⇥⇤]+'  # Arrows for inflection
+        inflection_chars = re.findall(inflection_pattern, glyph)
+        
         # Decode each section if present
         if traits_chars:
             traits = decode_traits(''.join(traits_chars))
@@ -89,6 +96,18 @@ def decode_glyph(glyph: str, to_tomotanzo: bool = False) -> Dict[str, Any]:
             projection = decode_projection(''.join(projection_chars))
             if projection:
                 profile['projection'] = projection
+                
+        # Decode intensity if present
+        if intensity_chars:
+            intensity = decode_intensity(''.join(intensity_chars))
+            if intensity:
+                profile['intensity'] = intensity
+                
+        # Decode inflection if present
+        if inflection_chars:
+            inflection = decode_inflection(''.join(inflection_chars))
+            if inflection:
+                profile['inflection'] = inflection
         
         if not profile:
             raise ValueError("No decodable elements found in glyph")
@@ -232,6 +251,55 @@ def decode_projection(projection_chars: str) -> Dict[str, float]:
             projection[attr] = value
     
     return projection
+
+def decode_intensity(intensity_chars: str) -> Dict[str, float]:
+    """
+    Decode Geometric Shape characters back into intensity values.
+    
+    Args:
+        intensity_chars: String of Geometric Shape characters representing intensity levels
+        
+    Returns:
+        Dictionary of intensity metrics with their values (0.0-1.0)
+    """
+    intensity = {}
+    
+    # Process the intensity characters in groups of 3 (value + decimal point + decimal)
+    i = 0
+    while i < len(intensity_chars) - 2:
+        # Each intensity value consists of 3 characters
+        char_group = intensity_chars[i:i+3]
+        value = intensity_map.decode_intensity(char_group)
+        
+        if value is not None:
+            # Use a generated metric name - this could be improved with additional context
+            metric_name = f"intensity_metric_{i//3 + 1}"
+            intensity[metric_name] = value
+        
+        i += 3
+    
+    return intensity
+
+def decode_inflection(inflection_chars: str) -> Dict[str, str]:
+    """
+    Decode Arrow characters back into inflection patterns.
+    
+    Args:
+        inflection_chars: String of Arrow characters representing inflection patterns
+        
+    Returns:
+        Dictionary of inflection patterns for different metrics
+    """
+    inflection = {}
+    
+    for i, char in enumerate(inflection_chars):
+        pattern = inflection_map.decode_inflection_char(char)
+        if pattern:
+            # Use a generated metric name - this could be improved with additional context
+            metric_name = f"inflection_pattern_{i + 1}"
+            inflection[metric_name] = pattern
+    
+    return inflection
 
 # Helper function for file operations
 def decode_file(file_path: str, output_path: str = None, output_format: str = 'yaml') -> Dict[str, Any]:
