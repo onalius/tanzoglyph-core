@@ -1,113 +1,148 @@
-"""
-Test suite for TanzoGlyph schema validation
-"""
-
+import unittest
 import os
 import sys
-import unittest
 import json
 import yaml
-from pathlib import Path
+import jsonschema
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
 
-# Add the parent directory to the Python path to import tanzoglyph modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from tanzoglyph.encoder import (
-    validate_against_schema, get_schema_path, load_schema
-)
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 
 class TestGlyphSchema(unittest.TestCase):
-    """Test cases for TanzoGlyph schema validation"""
-    
+    """Test cases for the TanzoGlyph JSON schema validation"""
+
     def setUp(self):
-        # Create a temporary test directory
-        self.test_dir = Path("./tests/temp")
-        self.test_dir.mkdir(exist_ok=True)
-        
-        # Create a valid profile
+        # Load the schema
+        schema_path = os.path.join(os.path.dirname(__file__), '..', 'schemas', 'tomoglyph.schema.json')
+        with open(schema_path, 'r') as f:
+            self.schema = json.load(f)
+            
+        # Sample valid profile for testing
         self.valid_profile = {
-            "name": "Valid Test Profile",
+            "name": "Test Profile",
             "version": "1.0.0",
-            "glyph_string": "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂",
-            "created_at": "2025-04-30T16:00:00Z",
-            "updated_at": "2025-04-30T16:00:00Z",
-            "description": "A valid test profile",
             "traits": {
-                "analytical": 0.8,
-                "creative": 0.6
+                "analytical": 0.85,
+                "creative": 0.75,
+                "determined": -0.20,
+                "empathetic": 0.60
             },
             "archetypes": [
-                {"name": "Teacher", "weight": 0.7},
-                {"name": "Explorer", "weight": 0.4}
-            ]
+                {"name": "Sage", "weight": 0.85},
+                {"name": "Creator", "weight": 0.65}
+            ],
+            "created_at": "2025-04-30T12:00:00Z",
+            "description": "A test profile for schema validation"
         }
-        
-        # Save valid profile as YAML
-        self.valid_yaml_path = self.test_dir / "valid_profile.yaml"
-        with open(self.valid_yaml_path, "w", encoding="utf-8") as f:
-            yaml.dump(self.valid_profile, f)
-        
-        # Create an invalid profile (missing required fields)
-        self.invalid_profile = {
-            "name": "Invalid Test Profile"
-            # Missing version and glyph_string (required fields)
-        }
-        
-        # Save invalid profile as YAML
-        self.invalid_yaml_path = self.test_dir / "invalid_profile.yaml"
-        with open(self.invalid_yaml_path, "w", encoding="utf-8") as f:
-            yaml.dump(self.invalid_profile, f)
-    
-    def tearDown(self):
-        # Clean up temporary files
-        if self.valid_yaml_path.exists():
-            self.valid_yaml_path.unlink()
-        if self.invalid_yaml_path.exists():
-            self.invalid_yaml_path.unlink()
-        # Remove temp directory if empty
+
+    def test_valid_profile(self):
+        """Test that a valid profile passes schema validation"""
         try:
-            self.test_dir.rmdir()
-        except OSError:
-            pass
-    
-    def test_schema_loading(self):
-        """Test loading the schema files"""
-        try:
-            # Try to get the schema path
-            schema_path = get_schema_path('tomoglyph')
-            self.assertTrue(os.path.exists(schema_path))
+            validate(instance=self.valid_profile, schema=self.schema)
+            validation_success = True
+        except ValidationError:
+            validation_success = False
             
-            # Try to load the schema
-            schema = load_schema(schema_path)
-            self.assertIsInstance(schema, dict)
-            self.assertIn('properties', schema)
+        self.assertTrue(validation_success)
+
+    def test_missing_required_fields(self):
+        """Test that profiles missing required fields fail validation"""
+        # Test missing name
+        invalid_profile = self.valid_profile.copy()
+        del invalid_profile['name']
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
             
-            # Check some essential schema properties
-            self.assertIn('name', schema['properties'])
-            self.assertIn('glyph_string', schema['properties'])
-            self.assertIn('version', schema['properties'])
-        except FileNotFoundError:
-            self.skipTest("Schema files not found, skipping test")
-    
-    def test_validate_valid_profile(self):
-        """Test validating a valid profile against the schema"""
-        try:
-            # This should pass without raising an exception
-            result = validate_against_schema(str(self.valid_yaml_path))
-            self.assertTrue(result)
-        except FileNotFoundError:
-            self.skipTest("Schema files not found, skipping test")
-        except Exception as e:
-            self.fail(f"Validation raised an unexpected exception: {str(e)}")
-    
-    def test_validate_invalid_profile(self):
-        """Test that an invalid profile fails validation"""
-        try:
-            # This should raise a validation error
-            with self.assertRaises(Exception):
-                validate_against_schema(str(self.invalid_yaml_path))
-        except FileNotFoundError:
-            self.skipTest("Schema files not found, skipping test")
+        # Test missing version
+        invalid_profile = self.valid_profile.copy()
+        del invalid_profile['version']
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
+            
+        # Test missing traits
+        invalid_profile = self.valid_profile.copy()
+        del invalid_profile['traits']
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
+            
+        # Test missing archetypes
+        invalid_profile = self.valid_profile.copy()
+        del invalid_profile['archetypes']
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
+
+    def test_invalid_types(self):
+        """Test that profiles with wrong field types fail validation"""
+        # Test invalid name type
+        invalid_profile = self.valid_profile.copy()
+        invalid_profile['name'] = 123  # Should be string
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
+            
+        # Test invalid version format
+        invalid_profile = self.valid_profile.copy()
+        invalid_profile['version'] = "not-semver"  # Should match pattern
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
+            
+        # Test invalid traits type
+        invalid_profile = self.valid_profile.copy()
+        invalid_profile['traits'] = [1, 2, 3]  # Should be object
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
+            
+        # Test invalid archetypes type
+        invalid_profile = self.valid_profile.copy()
+        invalid_profile['archetypes'] = "not-array"  # Should be array
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
+
+    def test_value_constraints(self):
+        """Test that values outside allowed ranges fail validation"""
+        # Test trait value outside range
+        invalid_profile = self.valid_profile.copy()
+        invalid_profile['traits']['over_range'] = 1.5  # Should be -1 to 1
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
+            
+        # Test archetype weight outside range
+        invalid_profile = self.valid_profile.copy()
+        invalid_profile['archetypes'][0]['weight'] = 1.2  # Should be 0 to 1
+        
+        with self.assertRaises(ValidationError):
+            validate(instance=invalid_profile, schema=self.schema)
+
+    def test_example_profiles(self):
+        """Test that the example profiles in the repo pass validation"""
+        examples_dir = os.path.join(os.path.dirname(__file__), '..', 'examples', 'glyphs')
+        example_files = [f for f in os.listdir(examples_dir) if f.endswith('.yaml')]
+        
+        for example_file in example_files:
+            file_path = os.path.join(examples_dir, example_file)
+            with open(file_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                
+            try:
+                validate(instance=profile, schema=self.schema)
+                validation_success = True
+            except ValidationError as e:
+                validation_success = False
+                print(f"Validation error in {example_file}: {e}")
+                
+            self.assertTrue(validation_success, f"Example profile {example_file} failed validation")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

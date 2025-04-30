@@ -1,72 +1,123 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "TanzoGlyph Blockchain Metadata Schema",
-  "description": "Schema definition for blockchain metadata related to TanzoGlyph registrations",
+  "description": "Schema for validating blockchain metadata for TanzoGlyph profiles",
   "type": "object",
-  "required": ["ipfs_cid", "tanzolang_version"],
+  "required": ["version", "profile_hash", "glyph_string", "timestamp", "signature"],
   "properties": {
-    "ipfs_cid": {
+    "version": {
       "type": "string",
-      "description": "IPFS Content ID for the TanzoGlyph profile"
-    },
-    "verification_tx_hash": {
-      "type": "string",
-      "description": "Transaction hash for blockchain verification of this glyph"
-    },
-    "tanzolang_version": {
-      "type": "string",
-      "description": "Version of TanzoLang used for encoding",
+      "description": "Version of the metadata format",
       "pattern": "^\\d+\\.\\d+\\.\\d+$"
     },
-    "storage_proof_url": {
+    "profile_hash": {
       "type": "string",
-      "format": "uri",
-      "description": "URL for storage proof verification"
+      "description": "SHA-256 hash of the full profile JSON",
+      "pattern": "^[0-9a-f]{64}$"
     },
-    "lineage_root_tx_hash": {
+    "glyph_string": {
       "type": "string",
-      "description": "Transaction hash for the lineage root of this identity"
+      "description": "TanzoGlyph character stream"
     },
-    "verification_chain": {
+    "ipfs_cid": {
       "type": "string",
-      "description": "Blockchain used for verification (e.g., 'ethereum', 'polygon', 'solana')"
+      "description": "IPFS Content ID where the full profile is stored"
     },
-    "verification_contract": {
-      "type": "string",
-      "description": "Contract address used for verification"
-    },
-    "verification_timestamp": {
+    "timestamp": {
       "type": "string",
       "format": "date-time",
-      "description": "Timestamp of blockchain verification"
-    },
-    "issuer": {
-      "type": "string",
-      "description": "Entity that issued/created this glyph"
-    },
-    "issuer_pubkey": {
-      "type": "string",
-      "description": "Public key of the issuing entity"
+      "description": "Timestamp of when this metadata was created"
     },
     "signature": {
       "type": "string",
-      "description": "Cryptographic signature of the glyph content"
+      "description": "Cryptographic signature of the metadata"
     },
-    "expiration": {
+    "signer_address": {
       "type": "string",
-      "format": "date-time",
-      "description": "Expiration date of this verification (if applicable)"
+      "description": "Blockchain address of the signer"
     },
-    "registry_url": {
+    "chain_id": {
+      "type": "integer",
+      "description": "Chain ID where this metadata is registered"
+    },
+    "transaction_hash": {
       "type": "string",
-      "format": "uri",
-      "description": "URL to the registry where this glyph is registered"
+      "description": "Transaction hash where this metadata was recorded"
     },
-    "derivation_path": {
-      "type": "array",
-      "description": "Array of transaction hashes representing the derivation path",
-      "items": {
-        "type": "string"
+    "registry_contract": {
+      "type": "string",
+      "description": "Contract address of the TanzoGlyph registry"
+    },
+    "profile_name": {
+      "type": "string",
+      "description": "Name of the profile (redundant for verification)"
+    },
+    "creator_id": {
+      "type": "string",
+      "description": "Identifier for the creator of this profile"
+    },
+    "lineage": {
+      "type": "object",
+      "description": "Lineage information for this profile",
+      "properties": {
+        "parent_glyph": {
+          "type": "string",
+          "description": "Parent TanzoGlyph if this is a derived profile"
+        },
+        "parent_tx_hash": {
+          "type": "string",
+          "description": "Transaction hash of the parent registration"
+        },
+        "root_tx_hash": {
+          "type": "string",
+          "description": "Transaction hash of the root profile in this lineage"
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Generation number in the lineage (0 for root)"
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "description": "Permission settings for this profile",
+      "properties": {
+        "is_public": {
+          "type": "boolean",
+          "description": "Whether this profile is publicly accessible"
+        },
+        "derivation_allowed": {
+          "type": "boolean",
+          "description": "Whether derived profiles are allowed"
+        },
+        "attribution_required": {
+          "type": "boolean",
+          "description": "Whether attribution is required for derivatives"
+        },
+        "commercial_use": {
+          "type": "boolean",
+          "description": "Whether commercial use is permitted"
+        }
+      }
+    },
+    "storage_proof": {
+      "type": "object",
+      "description": "Proof of storage on decentralized systems",
+      "properties": {
+        "ipfs_proof_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to IPFS storage proof"
+        },
+        "arweave_tx_id": {
+          "type": "string",
+          "description": "Arweave transaction ID if backed up there"
+        },
+        "filecoin_deal_id": {
+          "type": "string",
+          "description": "Filecoin deal ID if stored there"
+        }
       }
     }
   }

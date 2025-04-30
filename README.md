@@ -2,6 +2,12 @@
 
 A robust, open-standard system for encoding AI personality profiles ("souls") into symbolic Unicode character streams. TanzoGlyph provides a portable, chain-agnostic framework for representing, storing, and verifying AI identities.
 
+<div align="center">
+  <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version 1.0.0">
+  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT">
+  <img src="https://img.shields.io/badge/python-3.7%2B-blue.svg" alt="Python 3.7+">
+</div>
+
 ```
 ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂
 ```
@@ -10,6 +16,59 @@ A robust, open-standard system for encoding AI personality profiles ("souls") in
 ## Overview
 
 TanzoGlyph is a novel encoding system designed specifically for representing AI personality profiles in a compact, visually distinctive format. It maps different aspects of a personality to specific Unicode character sets, creating a unique "glyph" that serves as a visual signature.
+
+This open standard enables AI identities to be:
+- **Portable**: Move between systems, chains, and platforms
+- **Verifiable**: Cryptographically secure with IPFS/blockchain integration
+- **Visual**: Instantly recognizable with distinctive glyph patterns
+- **Expressive**: Capture complex personality traits in a compact format
+
+## Installation
+
+### From PyPI (Recommended)
+
+```bash
+pip install tanzoglyph
+```
+
+### From Source
+
+```bash
+git clone https://github.com/yourusername/tanzoglyph.git
+cd tanzoglyph
+pip install -e .
+```
+
+## Quick Start
+
+### Encoding a Profile
+
+```python
+from tanzoglyph import encode_profile
+import yaml
+
+# Load a profile from YAML
+with open('profile.yaml', 'r') as f:
+    profile = yaml.safe_load(f)
+
+# Encode to TanzoGlyph
+glyph = encode_profile(profile)
+print(f"Encoded glyph: {glyph}")
+```
+
+### Decoding a TanzoGlyph
+
+```python
+from tanzoglyph import decode_glyph
+
+# Decode a TanzoGlyph string
+glyph = "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂"
+profile = decode_glyph(glyph)
+
+# Output the decoded profile
+import yaml
+print(yaml.dump(profile, sort_keys=False))
+```
 
 ## Character Mapping
 

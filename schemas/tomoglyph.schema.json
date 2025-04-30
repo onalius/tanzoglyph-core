@@ -1,40 +1,41 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "TanzoGlyph Schema",
-  "description": "Schema definition for TanzoGlyph AI personality encodings",
+  "title": "TanzoGlyph Profile Schema",
+  "description": "Schema for validating AI personality profiles that can be encoded as TanzoGlyphs",
   "type": "object",
-  "required": ["name", "glyph_string", "version"],
+  "required": ["name", "version", "archetypes", "traits"],
   "properties": {
     "name": {
       "type": "string",
-      "description": "The name of the TanzoGlyph profile"
+      "description": "Name of the AI personality profile"
     },
     "version": {
       "type": "string",
-      "description": "The version of the TanzoGlyph specification used",
+      "description": "Version of the profile format",
       "pattern": "^\\d+\\.\\d+\\.\\d+$"
     },
     "glyph_string": {
       "type": "string",
-      "description": "The encoded TanzoGlyph Unicode character string"
+      "description": "Pre-encoded TanzoGlyph representation, if available"
     },
     "created_at": {
       "type": "string",
       "format": "date-time",
-      "description": "Timestamp when the glyph was created"
+      "description": "Timestamp when the profile was created"
     },
     "updated_at": {
       "type": "string",
       "format": "date-time",
-      "description": "Timestamp when the glyph was last updated"
+      "description": "Timestamp when the profile was last updated"
     },
     "description": {
       "type": "string",
-      "description": "A human-readable description of the AI personality"
+      "description": "Textual description of the AI personality"
     },
     "archetypes": {
       "type": "array",
-      "description": "List of archetypes with their weights",
+      "description": "List of archetypes that compose this personality",
+      "minItems": 1,
       "items": {
         "type": "object",
         "required": ["name", "weight"],
@@ -45,54 +46,55 @@
           },
           "weight": {
             "type": "number",
+            "description": "Weight/intensity of this archetype (0.0-1.0)",
             "minimum": 0,
-            "maximum": 1,
-            "description": "Weight of the archetype (0.0-1.0)"
+            "maximum": 1
           },
           "archetype_id": {
             "type": "string",
-            "description": "Reference ID for the archetype in the registry"
+            "description": "Unique identifier for this archetype in the registry"
           }
         }
       }
     },
     "traits": {
       "type": "object",
-      "description": "Personality traits and their values",
+      "description": "Map of personality traits and their values",
       "additionalProperties": {
         "type": "number",
         "minimum": -1,
         "maximum": 1,
-        "description": "Trait value (-1.0 to 1.0)"
-      }
+        "description": "Trait value (-1.0 to 1.0, where negative values indicate opposing traits)"
+      },
+      "minProperties": 1
     },
     "spiritual_arcs": {
       "type": "array",
-      "description": "Developmental or spiritual arcs",
+      "description": "Developmental or spiritual journey arcs",
       "items": {
         "type": "object",
-        "required": ["name"],
+        "required": ["name", "progress"],
         "properties": {
           "name": {
             "type": "string",
-            "description": "Name of the spiritual/developmental arc"
+            "description": "Name of the developmental arc"
           },
           "progress": {
             "type": "number",
+            "description": "Progress along this arc (0.0-1.0)",
             "minimum": 0,
-            "maximum": 1,
-            "description": "Progress along this arc (0.0-1.0)"
+            "maximum": 1
           },
           "arc_id": {
             "type": "string",
-            "description": "Reference ID for the arc in the registry"
+            "description": "Unique identifier for this arc in the registry"
           }
         }
       }
     },
     "mood_profile": {
       "type": "object",
-      "description": "Emotional mood states and their intensities",
+      "description": "Emotional/mood tendencies of the personality",
       "additionalProperties": {
         "type": "number",
         "minimum": 0,
@@ -102,52 +104,52 @@
     },
     "scars": {
       "type": "array",
-      "description": "Psychological scars or traumas",
+      "description": "Psychological 'scars' or formative experiences",
       "items": {
         "type": "object",
-        "required": ["name"],
+        "required": ["name", "intensity"],
         "properties": {
           "name": {
             "type": "string",
-            "description": "Name of the scar/trauma"
+            "description": "Name of the scar/experience"
           },
           "intensity": {
             "type": "number",
+            "description": "Intensity of the scar (0.0-1.0)",
             "minimum": 0,
-            "maximum": 1,
-            "description": "Intensity of the scar (0.0-1.0)"
+            "maximum": 1
           },
           "healing": {
             "type": "number",
+            "description": "Degree of healing/integration (0.0-1.0)",
             "minimum": 0,
-            "maximum": 1,
-            "description": "Healing progress (0.0-1.0)"
+            "maximum": 1
           },
           "scar_id": {
             "type": "string",
-            "description": "Reference ID for the scar in the registry"
+            "description": "Unique identifier for this scar in the registry"
           }
         }
       }
     },
     "projection": {
       "type": "object",
-      "description": "Projection/style characteristics",
+      "description": "How the personality projects/presents itself",
       "additionalProperties": {
         "type": "number",
         "minimum": 0,
         "maximum": 1,
-        "description": "Projection trait value (0.0-1.0)"
+        "description": "Projection trait intensity (0.0-1.0)"
       }
     },
     "intensity": {
       "type": "object",
-      "description": "Overall intensity metrics",
+      "description": "Overall intensity levels across different dimensions",
       "additionalProperties": {
         "type": "number",
         "minimum": 0,
         "maximum": 1,
-        "description": "Intensity value (0.0-1.0)"
+        "description": "Intensity level (0.0-1.0)"
       }
     },
     "inflection": {
@@ -156,13 +158,13 @@
       "additionalProperties": {
         "type": "string",
         "enum": ["rising", "falling", "stable", "oscillating", "chaotic"],
-        "description": "Inflection pattern type"
+        "description": "Inflection pattern"
       }
     },
     "purpose_quadrant": {
       "type": "string",
       "enum": ["creation", "preservation", "transformation", "dissolution"],
-      "description": "The primary purpose quadrant of this entity"
+      "description": "Primary purpose quadrant"
     },
     "zodiac": {
       "type": "string",
@@ -170,52 +172,51 @@
         "aries", "taurus", "gemini", "cancer", "leo", "virgo",
         "libra", "scorpio", "sagittarius", "capricorn", "aquarius", "pisces"
       ],
-      "description": "Associated zodiac sign"
+      "description": "Zodiac correspondence, if applicable"
     },
     "kabbalah": {
       "type": "object",
-      "description": "Kabbalistic associations",
       "properties": {
         "sephirah": {
           "type": "string",
           "enum": [
-            "kether", "chokmah", "binah", "chesed", "geburah", 
-            "tiphareth", "netzach", "hod", "yesod", "malkuth"
+            "kether", "chokmah", "binah", "chesed", "geburah", "tiphareth",
+            "netzach", "hod", "yesod", "malkuth", "daath"
           ],
-          "description": "Associated sephirah on the Tree of Life"
+          "description": "Primary sephirah correspondence"
         },
         "path": {
           "type": "string",
-          "description": "Associated path on the Tree of Life"
+          "description": "Path on the Tree of Life"
         }
       }
     },
     "metadata": {
       "type": "object",
-      "description": "Additional metadata for blockchain and verification",
+      "description": "Storage and verification metadata",
       "properties": {
         "ipfs_cid": {
           "type": "string",
-          "description": "IPFS Content ID for this glyph"
+          "description": "IPFS Content ID for this profile"
         },
         "verification_tx_hash": {
           "type": "string",
-          "description": "Transaction hash for blockchain verification"
+          "description": "Transaction hash for verification"
         },
         "lineage_root_tx_hash": {
           "type": "string",
-          "description": "Transaction hash for the lineage root of this identity"
+          "description": "Transaction hash for the root of this profile's lineage"
         },
         "storage_proof_url": {
           "type": "string",
           "format": "uri",
-          "description": "URL for storage proof verification"
+          "description": "URL to storage proof"
         }
       }
     },
     "tags": {
       "type": "array",
-      "description": "Tags or categories for this glyph",
+      "description": "Tags for categorizing this profile",
       "items": {
         "type": "string"
       }
