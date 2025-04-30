@@ -74,6 +74,14 @@
     color: #06d6a0;
 }
 
+.text-intensity {
+    color: #7209b7;
+}
+
+.text-arrows {
+    color: #ffbe0b;
+}
+
 /* Feature list styling */
 .feature-list {
     list-style-type: none;
