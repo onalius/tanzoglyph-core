@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, render_template, request, jsonify, send_file, flash, redirect, url_for
+from flask import Flask, render_template, request, jsonify, send_file, flash, redirect, url_for, Response
 import yaml
 import json
 import tempfile
@@ -8,6 +8,7 @@ import tempfile
 from tanzoglyph.encoder import encode_profile
 from tanzoglyph.decoder import decode_glyph
 from tanzoglyph.display import matrix_effect_html
+from tanzoglyph.image_generator import glyph_to_circular_svg, glyph_to_grid_svg, glyph_to_fingerprint_svg
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -21,6 +22,13 @@ app.secret_key = os.environ.get("SESSION_SECRET", "tanzoglyph_dev_key")
 def index():
     """Render the main page of the application."""
     return render_template('index.html')
+
+@app.route('/glyph-images')
+def glyph_images():
+    """Render the TanzoGlyph image generator page."""
+    # Use a sample glyph as default
+    default_glyph = "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂"
+    return render_template('glyph_images.html', default_glyph=default_glyph)
 
 @app.route('/encode', methods=['GET', 'POST'])
 def encode():
@@ -172,6 +180,93 @@ def api_decode():
     
     except Exception as e:
         logger.error(f"API decoding error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 400
+
+@app.route('/glyph-image/<format_type>/<glyph>')
+def glyph_image(format_type, glyph):
+    """Generate an SVG image from a TanzoGlyph string."""
+    try:
+        # Validate format type
+        if format_type not in ['circular', 'grid', 'fingerprint']:
+            return jsonify({'error': 'Invalid format type'}), 400
+        
+        # Get parameters with defaults
+        size = request.args.get('size', 200, type=int)
+        background = request.args.get('background', 'none')
+        
+        # Generate SVG based on format type
+        if format_type == 'circular':
+            inner_radius = request.args.get('inner_radius', 30, type=int)
+            border = request.args.get('border', 'true').lower() == 'true'
+            svg_content = glyph_to_circular_svg(
+                glyph, size=size, background=background,
+                inner_radius_percent=inner_radius, border=border
+            )
+        elif format_type == 'grid':
+            columns = request.args.get('columns', 8, type=int)
+            cell_padding = request.args.get('padding', 2, type=int)
+            svg_content = glyph_to_grid_svg(
+                glyph, size=size, columns=columns,
+                background=background, cell_padding=cell_padding
+            )
+        elif format_type == 'fingerprint':
+            width = size
+            height = request.args.get('height', size // 4, type=int)
+            style = request.args.get('style', 'bars')
+            if style not in ['bars', 'waves', 'dots']:
+                style = 'bars'
+            svg_content = glyph_to_fingerprint_svg(
+                glyph, width=width, height=height,
+                background=background, style=style
+            )
+        
+        # Serve the SVG
+        return Response(svg_content, mimetype='image/svg+xml')
+    
+    except Exception as e:
+        logger.error(f"Image generation error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/glyph-image', methods=['POST'])
+def api_glyph_image():
+    """API endpoint for generating a TanzoGlyph image."""
+    try:
+        data = request.get_json()
+        if not data or 'glyph' not in data:
+            return jsonify({'success': False, 'error': 'No glyph provided'}), 400
+        
+        glyph = data['glyph']
+        format_type = data.get('format', 'circular')
+        
+        # Additional parameters with defaults
+        params = {}
+        
+        # Common parameters
+        params['size'] = data.get('size', 200)
+        params['background'] = data.get('background', 'none')
+        
+        # Format-specific parameters
+        if format_type == 'circular':
+            params['inner_radius_percent'] = data.get('inner_radius', 30)
+            params['border'] = data.get('border', True)
+            svg_content = glyph_to_circular_svg(glyph, **params)
+        elif format_type == 'grid':
+            params['columns'] = data.get('columns', 8)
+            params['cell_padding'] = data.get('padding', 2)
+            svg_content = glyph_to_grid_svg(glyph, **params)
+        elif format_type == 'fingerprint':
+            params['width'] = params.pop('size')  # Use size as width
+            params['height'] = data.get('height', params['width'] // 4)
+            params['style'] = data.get('style', 'bars')
+            svg_content = glyph_to_fingerprint_svg(glyph, **params)
+        else:
+            return jsonify({'success': False, 'error': 'Invalid format type'}), 400
+        
+        # Return as SVG content
+        return Response(svg_content, mimetype='image/svg+xml')
+    
+    except Exception as e:
+        logger.error(f"API image generation error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 400
 
 # Error handlers

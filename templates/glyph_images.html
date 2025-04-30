@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}TanzoGlyph Image Generator{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">TanzoGlyph Image Generator</h1>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Generate TanzoGlyph Images</h2>
+                </div>
+                <div class="card-body">
+                    <form id="glyphForm">
+                        <div class="mb-3">
+                            <label for="glyphText" class="form-label">TanzoGlyph String</label>
+                            <textarea class="form-control" id="glyphText" rows="3" placeholder="Enter a TanzoGlyph character string..." required>{{ default_glyph }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="formatType" class="form-label">Visualization Format</label>
+                            <select class="form-select" id="formatType">
+                                <option value="circular">Circular (Identity Badge)</option>
+                                <option value="grid">Grid (Character Map)</option>
+                                <option value="fingerprint">Fingerprint (Avatar Signature)</option>
+                            </select>
+                        </div>
+                        
+                        <div id="formatOptions" class="mb-3">
+                            <!-- Format-specific options will be added here dynamically -->
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="size" class="form-label">Size</label>
+                            <input type="range" class="form-range" id="size" min="100" max="600" step="10" value="200">
+                            <div class="d-flex justify-content-between">
+                                <small>100px</small>
+                                <small id="sizeValue">200px</small>
+                                <small>600px</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="background" class="form-label">Background Color</label>
+                            <input type="color" class="form-control form-control-color" id="background" value="#ffffff">
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="transparentBg" checked>
+                                <label class="form-check-label" for="transparentBg">Transparent background</label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Generate Image</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Generated Image</h2>
+                    <div>
+                        <button id="copyUrl" class="btn btn-sm btn-outline-secondary me-2" disabled>Copy URL</button>
+                        <a id="downloadSvg" class="btn btn-sm btn-outline-primary" download="tanzoglyph.svg" disabled>Download SVG</a>
+                    </div>
+                </div>
+                <div class="card-body text-center p-4">
+                    <div id="imageContainer" class="mb-3 p-3">
+                        <div class="placeholder-glow mb-3">
+                            <span class="placeholder col-8 rounded-circle mx-auto d-block" style="height: 200px; width: 200px;"></span>
+                        </div>
+                        <p class="text-muted">Generate an image to see the result</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Image URL</h2>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" id="imageUrl" class="form-control" placeholder="Image URL will appear here" readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="copyUrlBtn" disabled>
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <div class="form-text">Use this URL to include the TanzoGlyph in avatars or other applications.</div>
+                    
+                    <div class="mt-3">
+                        <label class="form-label">Avatar Integration Example:</label>
+                        <div class="avatar-example d-flex align-items-center p-3 border rounded">
+                            <div id="avatarContainer" class="me-3" style="position: relative; width: 64px; height: 64px;">
+                                <div class="avatar-placeholder bg-secondary rounded-circle" style="width: 64px; height: 64px;"></div>
+                                <!-- Fingerprint will be added here -->
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">Example Profile</h5>
+                                <p class="mb-0 text-muted">With integrated TanzoGlyph identifier</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Format-specific options templates
+const formatOptions = {
+    circular: `
+        <div class="row">
+            <div class="col-md-6">
+                <label for="innerRadius" class="form-label">Inner Radius %</label>
+                <input type="range" class="form-range" id="innerRadius" min="0" max="70" value="30">
+                <div class="d-flex justify-content-between">
+                    <small>0%</small>
+                    <small id="innerRadiusValue">30%</small>
+                    <small>70%</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="border" checked>
+                    <label class="form-check-label" for="border">Show border</label>
+                </div>
+            </div>
+        </div>
+    `,
+    
+    grid: `
+        <div class="row">
+            <div class="col-md-6">
+                <label for="columns" class="form-label">Columns</label>
+                <input type="number" class="form-control" id="columns" min="1" max="20" value="8">
+            </div>
+            <div class="col-md-6">
+                <label for="padding" class="form-label">Cell Padding</label>
+                <input type="number" class="form-control" id="padding" min="0" max="10" value="2">
+            </div>
+        </div>
+    `,
+    
+    fingerprint: `
+        <div class="row">
+            <div class="col-md-6">
+                <label for="height" class="form-label">Height</label>
+                <input type="number" class="form-control" id="height" min="10" max="200" value="50">
+            </div>
+            <div class="col-md-6">
+                <label for="style" class="form-label">Style</label>
+                <select class="form-select" id="style">
+                    <option value="bars">Bars</option>
+                    <option value="waves">Waves</option>
+                    <option value="dots">Dots</option>
+                </select>
+            </div>
+        </div>
+    `
+};
+
+// Update format options when format type changes
+document.getElementById('formatType').addEventListener('change', function() {
+    const formatType = this.value;
+    document.getElementById('formatOptions').innerHTML = formatOptions[formatType];
+    
+    // Set up event listeners for the newly added elements
+    if (formatType === 'circular') {
+        document.getElementById('innerRadius').addEventListener('input', function() {
+            document.getElementById('innerRadiusValue').textContent = this.value + '%';
+        });
+    }
+});
+
+// Initialize with circular format options
+document.getElementById('formatOptions').innerHTML = formatOptions.circular;
+
+// Update size value display
+document.getElementById('size').addEventListener('input', function() {
+    document.getElementById('sizeValue').textContent = this.value + 'px';
+});
+
+// Toggle background color input based on transparency checkbox
+document.getElementById('transparentBg').addEventListener('change', function() {
+    document.getElementById('background').disabled = this.checked;
+});
+
+// Set up inner radius value display listener
+document.getElementById('innerRadius').addEventListener('input', function() {
+    document.getElementById('innerRadiusValue').textContent = this.value + '%';
+});
+
+// Generate image on form submission
+document.getElementById('glyphForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const glyph = document.getElementById('glyphText').value.trim();
+    if (!glyph) {
+        alert('Please enter a TanzoGlyph string');
+        return;
+    }
+    
+    const formatType = document.getElementById('formatType').value;
+    const size = document.getElementById('size').value;
+    
+    // Build URL with basic parameters
+    let url = `/glyph-image/${formatType}/${encodeURIComponent(glyph)}?size=${size}`;
+    
+    // Add background color if not transparent
+    if (!document.getElementById('transparentBg').checked) {
+        const bgColor = document.getElementById('background').value;
+        url += `&background=${encodeURIComponent(bgColor)}`;
+    }
+    
+    // Add format-specific parameters
+    if (formatType === 'circular') {
+        const innerRadius = document.getElementById('innerRadius').value;
+        const border = document.getElementById('border').checked;
+        url += `&inner_radius=${innerRadius}&border=${border}`;
+    } else if (formatType === 'grid') {
+        const columns = document.getElementById('columns').value;
+        const padding = document.getElementById('padding').value;
+        url += `&columns=${columns}&padding=${padding}`;
+    } else if (formatType === 'fingerprint') {
+        const height = document.getElementById('height').value;
+        const style = document.getElementById('style').value;
+        url += `&height=${height}&style=${style}`;
+    }
+    
+    // Update the image display
+    const imageContainer = document.getElementById('imageContainer');
+    imageContainer.innerHTML = `<img src="${url}" alt="TanzoGlyph" class="img-fluid" style="max-width: 100%; height: auto;">`;
+    
+    // Update URL field
+    const imageUrl = document.getElementById('imageUrl');
+    imageUrl.value = window.location.origin + url;
+    
+    // Enable copy and download buttons
+    document.getElementById('copyUrlBtn').disabled = false;
+    document.getElementById('copyUrl').disabled = false;
+    
+    const downloadLink = document.getElementById('downloadSvg');
+    downloadLink.href = url;
+    downloadLink.disabled = false;
+    
+    // Update avatar example
+    updateAvatarExample(formatType, url);
+});
+
+// Copy URL to clipboard
+document.getElementById('copyUrlBtn').addEventListener('click', function() {
+    const imageUrl = document.getElementById('imageUrl');
+    imageUrl.select();
+    document.execCommand('copy');
+    
+    // Visual feedback
+    this.innerHTML = '<i class="bi bi-check"></i>';
+    setTimeout(() => {
+        this.innerHTML = '<i class="bi bi-clipboard"></i>';
+    }, 2000);
+});
+
+document.getElementById('copyUrl').addEventListener('click', function() {
+    const imageUrl = document.getElementById('imageUrl');
+    imageUrl.select();
+    document.execCommand('copy');
+    
+    // Visual feedback
+    this.textContent = 'Copied!';
+    setTimeout(() => {
+        this.textContent = 'Copy URL';
+    }, 2000);
+});
+
+// Update avatar example based on format type
+function updateAvatarExample(formatType, url) {
+    const avatarContainer = document.getElementById('avatarContainer');
+    
+    // Clear previous content
+    avatarContainer.innerHTML = `
+        <div class="avatar-placeholder bg-secondary rounded-circle" style="width: 64px; height: 64px;"></div>
+    `;
+    
+    // Add appropriate format based on type
+    if (formatType === 'circular') {
+        // Add circular image as a badge
+        const badgeUrl = url.replace(/size=\d+/, 'size=24') + '&inner_radius=0';
+        avatarContainer.innerHTML += `
+            <div style="position: absolute; bottom: -5px; right: -5px; width: 24px; height: 24px;">
+                <img src="${badgeUrl}" alt="TanzoGlyph Badge" width="24" height="24">
+            </div>
+        `;
+    } else if (formatType === 'fingerprint') {
+        // Add fingerprint at the bottom of avatar
+        const fingerprintUrl = url.replace(/size=\d+/, 'size=64').replace(/height=\d+/, 'height=15');
+        avatarContainer.innerHTML += `
+            <div style="position: absolute; bottom: 0; left: 0; width: 64px; height: 15px;">
+                <img src="${fingerprintUrl}" alt="TanzoGlyph Fingerprint" width="64" height="15">
+            </div>
+        `;
+    } else {
+        // For grid format, add a small overlay
+        const gridUrl = url.replace(/size=\d+/, 'size=32').replace(/columns=\d+/, 'columns=4');
+        avatarContainer.innerHTML += `
+            <div style="position: absolute; top: 0; right: 0; width: 32px; height: 32px;">
+                <img src="${gridUrl}" alt="TanzoGlyph Grid" width="32" height="32">
+            </div>
+        `;
+    }
+}
+</script>
+{% endblock %}
