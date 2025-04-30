@@ -185,7 +185,9 @@ def upload_glyph_file(file_path: str, service: str = 'web3.storage',
         
         # Add metadata file info to result
         result['metadata_path'] = metadata_path
-        result['metadata'] = metadata
+        # Store metadata fields individually
+        for k, v in metadata.items():
+            result[f'metadata_{k}'] = str(v)
     
     return result
 

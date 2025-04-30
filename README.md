@@ -112,6 +112,45 @@ curl -X POST -H "Content-Type: application/json" \
   http://localhost:5000/api/decode
 ```
 
+## Open Standard
+
+TanzoGlyph is designed as an open standard for AI soul encoding, providing a portable and blockchain-agnostic framework for representing AI personalities.
+
+### Schema System
+
+The system includes JSON Schema definitions that formalize the structure:
+
+- **tomoglyph.schema.json**: Defines the core TanzoGlyph profile structure
+- **blockchain_metadata.schema.json**: Defines the metadata for blockchain verification
+
+### Verification and Storage
+
+The framework supports a complete workflow for identity verification:
+
+1. **Profile Creation**: Structure an AI personality in YAML/JSON format
+2. **Encoding**: Convert the profile into a TanzoGlyph string
+3. **IPFS Storage**: Store the profile on IPFS with content addressing
+4. **Blockchain Registration**: Record the IPFS CID on a blockchain for permanence
+5. **Verification**: Validate profiles against schemas and verify blockchain records
+
+### Integration API
+
+The open standard provides a set of integration points for developers:
+
+```python
+# Serialize a YAML profile to TanzoGlyph
+from tanzoglyph.encoder import serialize_tomoglyph
+glyph = serialize_tomoglyph('profile.yaml')
+
+# Generate a visual representation
+from tanzoglyph.encoder import generate_visual_stream
+ascii_art = generate_visual_stream(glyph)
+
+# Validate a profile against the schema
+from tanzoglyph.encoder import validate_against_schema
+is_valid = validate_against_schema('profile.yaml')
+```
+
 ## Project Structure
 
 ```
@@ -122,6 +161,7 @@ tanzoglyph/
 │   ├── encoder.py              # Encoding functionality
 │   ├── decoder.py              # Decoding functionality
 │   ├── display.py              # Visualization tools
+│   ├── image_generator.py      # SVG generation tools
 │   └── tomotanzo_adapter.py    # Tomotanzo format adapter
 ├── registry/                   # Character mapping registry
 │   └── glyph_maps/             # Mapping modules
@@ -134,18 +174,29 @@ tanzoglyph/
 │       ├── projection.py       # Projection mapping (Block Drawing)
 │       ├── intensity.py        # Intensity mapping (Geometric Shapes)
 │       └── inflection.py       # Inflection mapping (Arrows)
+├── schemas/                    # Schema definitions
+│   ├── tomoglyph.schema.json   # Profile schema
+│   └── blockchain_metadata.schema.json  # Blockchain metadata schema
+├── cli/                        # Command-line tools
+│   ├── ipfs_tools.py           # IPFS integration
+│   └── verify.py               # Verification tools
+├── docs/                       # Documentation
+│   └── architecture.md         # Architecture details
 ├── templates/                  # Web interface templates
 │   ├── index.html              # Main page
 │   ├── encode.html             # Encoding page
-│   └── decode.html             # Decoding page
+│   ├── decode.html             # Decoding page
+│   └── glyph_images.html       # Image generation page
 ├── static/                     # Static web assets
 │   ├── css/                    # Stylesheets
 │   │   └── custom.css          # Custom styling
 │   └── js/                     # JavaScript
 │       └── app.js              # Client-side functionality
-├── examples/                   # Example profiles
-│   └── personas/               # Sample personas
-│       └── kai.yaml            # Example profile
+├── examples/                   # Example profiles and metadata
+│   ├── glyphs/                 # Sample glyph files
+│   │   └── sample_glyph.yaml   # Example profile
+│   └── blockchain/             # Sample blockchain metadata
+│       └── metadata_example.yaml  # Example metadata
 ├── app.py                      # Flask web application
 ├── main.py                     # Application entry point
 ├── requirements.txt            # Dependencies

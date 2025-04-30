@@ -534,7 +534,7 @@ def validate_against_schema(profile_path: str) -> bool:
         jsonschema.validate(instance=profile_data, schema=schema)
         logger.info(f"Profile {profile_path} successfully validated against schema")
         return True
-    except jsonschema.exceptions.ValidationError as e:
+    except jsonschema.ValidationError as e:
         logger.error(f"Schema validation failed: {str(e)}")
         raise
     
