@@ -4,13 +4,20 @@ TanzoGlyph Encoder Module
 
 This module contains functions for encoding structured AI personality profiles
 into TanzoGlyph character streams.
+
+This module is part of the TanzoGlyph open standard for AI soul encoding,
+providing tools for serializing, validating, and encoding AI personality profiles.
 """
 
 import re
 import yaml
 import json
+import os
+import sys
+import jsonschema
 import logging
-from typing import Dict, Any, List, Union, Tuple, Optional
+from pathlib import Path
+from typing import Dict, Any, List, Union, Tuple, Optional, BinaryIO
 
 from registry.glyph_maps import (
     traits as traits_map,
@@ -391,3 +398,190 @@ def encode_file(file_path: str, output_path: Optional[str] = None, output_format
             f.write(encoded)
     
     return encoded
+
+
+def serialize_tomoglyph(yaml_path: str) -> str:
+    """
+    Open a YAML profile file and serialize it into a TanzoGlyph string.
+    This function is part of the TanzoGlyph open standard API.
+    
+    Args:
+        yaml_path: Path to the YAML profile file
+        
+    Returns:
+        A TanzoGlyph string representation of the profile
+        
+    Raises:
+        ValueError: If the file cannot be parsed or does not conform to the schema
+    """
+    # First validate against schema
+    validate_against_schema(yaml_path)
+    
+    # Then encode to TanzoGlyph
+    return encode_file(yaml_path)
+
+
+def generate_visual_stream(glyph_string: str) -> str:
+    """
+    Generate an ASCII art visual representation of a TanzoGlyph string.
+    This function is part of the TanzoGlyph open standard API.
+    
+    Args:
+        glyph_string: A TanzoGlyph character string
+        
+    Returns:
+        An ASCII art representation of the glyph for visual display
+    """
+    # Import here to avoid circular imports
+    from tanzoglyph.display import print_glyph
+    import io
+    
+    # Redirect stdout to capture the output
+    old_stdout = sys.stdout
+    new_stdout = io.StringIO()
+    sys.stdout = new_stdout
+    
+    # Generate the visual display
+    try:
+        print_glyph(glyph_string, decode=True)
+        output = new_stdout.getvalue()
+    finally:
+        # Restore stdout
+        sys.stdout = old_stdout
+    
+    return output
+
+
+def get_schema_path(schema_name: str = 'tomoglyph') -> str:
+    """
+    Get the absolute path to a schema file.
+    
+    Args:
+        schema_name: Base name of the schema file (without extension)
+        
+    Returns:
+        Absolute path to the schema JSON file
+    """
+    # Get the project root directory
+    root_dir = Path(__file__).parent.parent
+    schema_path = root_dir / 'schemas' / f"{schema_name}.schema.json"
+    
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    return str(schema_path)
+
+
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """
+    Load a JSON Schema definition from a file.
+    
+    Args:
+        schema_path: Path to the schema file
+        
+    Returns:
+        The schema as a dictionary
+    """
+    try:
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading schema from {schema_path}: {str(e)}")
+        raise
+
+
+def validate_against_schema(profile_path: str) -> bool:
+    """
+    Validate a profile file against the TanzoGlyph schema.
+    This function is part of the TanzoGlyph open standard API.
+    
+    Args:
+        profile_path: Path to the profile file (YAML or JSON)
+        
+    Returns:
+        True if validation succeeds
+        
+    Raises:
+        ValidationError: If the profile does not conform to the schema
+        ValueError: If the file cannot be parsed
+    """
+    # Determine file type from extension
+    file_ext = profile_path.split('.')[-1].lower()
+    
+    # Load the profile data
+    try:
+        with open(profile_path, 'r', encoding='utf-8') as f:
+            if file_ext in ['yaml', 'yml']:
+                profile_data = yaml.safe_load(f)
+            elif file_ext == 'json':
+                profile_data = json.load(f)
+            else:
+                raise ValueError(f"Unsupported file format: {file_ext}. Use YAML or JSON.")
+    except Exception as e:
+        logger.error(f"Error reading profile file {profile_path}: {str(e)}")
+        raise ValueError(f"Could not parse profile file: {str(e)}")
+    
+    # Load the schema
+    try:
+        schema_path = get_schema_path('tomoglyph')
+        schema = load_schema(schema_path)
+    except Exception as e:
+        logger.error(f"Error loading schema: {str(e)}")
+        raise
+    
+    # Validate against the schema
+    try:
+        jsonschema.validate(instance=profile_data, schema=schema)
+        logger.info(f"Profile {profile_path} successfully validated against schema")
+        return True
+    except jsonschema.exceptions.ValidationError as e:
+        logger.error(f"Schema validation failed: {str(e)}")
+        raise
+    
+def create_metadata_file(glyph_string: str, ipfs_cid: str, output_path: str,
+                         version: str = "1.0.0", blockchain_tx: Optional[str] = None,
+                         storage_proof_url: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Create a blockchain metadata file for a TanzoGlyph.
+    
+    Args:
+        glyph_string: The TanzoGlyph string
+        ipfs_cid: The IPFS Content ID where the glyph is stored
+        output_path: Path to save the metadata file
+        version: TanzoLang version used
+        blockchain_tx: Optional blockchain transaction hash
+        storage_proof_url: Optional URL for storage proof
+        
+    Returns:
+        The metadata as a dictionary
+    """
+    metadata = {
+        "ipfs_cid": ipfs_cid,
+        "tanzolang_version": version,
+        "verification_timestamp": ""  # Will be filled by verification service
+    }
+    
+    if blockchain_tx:
+        metadata["verification_tx_hash"] = blockchain_tx
+    
+    if storage_proof_url:
+        metadata["storage_proof_url"] = storage_proof_url
+    
+    # Create the output directory if it doesn't exist
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    # Write to file
+    file_ext = output_path.split('.')[-1].lower()
+    with open(output_path, 'w', encoding='utf-8') as f:
+        if file_ext in ['yaml', 'yml']:
+            yaml.dump(metadata, f, default_flow_style=False)
+        elif file_ext == 'json':
+            json.dump(metadata, f, indent=2)
+        else:
+            # Default to YAML
+            yaml.dump(metadata, f, default_flow_style=False)
+    
+    logger.info(f"Created blockchain metadata file at {output_path}")
+    return metadata

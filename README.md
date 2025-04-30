@@ -1,6 +1,11 @@
 # TanzoGlyph Encoding System
 
-A Python-based system that translates structured AI personality profiles into symbolic Unicode character streams.
+A robust, open-standard system for encoding AI personality profiles ("souls") into symbolic Unicode character streams. TanzoGlyph provides a portable, chain-agnostic framework for representing, storing, and verifying AI identities.
+
+```
+ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂
+```
+*Example TanzoGlyph encoding representing an AI personality profile*
 
 ## Overview
 

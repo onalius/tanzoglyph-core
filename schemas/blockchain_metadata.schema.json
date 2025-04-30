@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TanzoGlyph Blockchain Metadata Schema",
+  "description": "Schema definition for blockchain metadata related to TanzoGlyph registrations",
+  "type": "object",
+  "required": ["ipfs_cid", "tanzolang_version"],
+  "properties": {
+    "ipfs_cid": {
+      "type": "string",
+      "description": "IPFS Content ID for the TanzoGlyph profile"
+    },
+    "verification_tx_hash": {
+      "type": "string",
+      "description": "Transaction hash for blockchain verification of this glyph"
+    },
+    "tanzolang_version": {
+      "type": "string",
+      "description": "Version of TanzoLang used for encoding",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "storage_proof_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL for storage proof verification"
+    },
+    "lineage_root_tx_hash": {
+      "type": "string",
+      "description": "Transaction hash for the lineage root of this identity"
+    },
+    "verification_chain": {
+      "type": "string",
+      "description": "Blockchain used for verification (e.g., 'ethereum', 'polygon', 'solana')"
+    },
+    "verification_contract": {
+      "type": "string",
+      "description": "Contract address used for verification"
+    },
+    "verification_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of blockchain verification"
+    },
+    "issuer": {
+      "type": "string",
+      "description": "Entity that issued/created this glyph"
+    },
+    "issuer_pubkey": {
+      "type": "string",
+      "description": "Public key of the issuing entity"
+    },
+    "signature": {
+      "type": "string",
+      "description": "Cryptographic signature of the glyph content"
+    },
+    "expiration": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiration date of this verification (if applicable)"
+    },
+    "registry_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to the registry where this glyph is registered"
+    },
+    "derivation_path": {
+      "type": "array",
+      "description": "Array of transaction hashes representing the derivation path",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

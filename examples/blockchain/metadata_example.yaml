@@ -1,0 +1,26 @@
+# Sample Blockchain Metadata for TanzoGlyph
+
+ipfs_cid: "QmYM4eZR3DGwkD8tLzU5oMECBfXzYM3PvUxZ2zK7dXPVDm"
+verification_tx_hash: "0x7f8e9a2c4b3d6e5f1a2b3c4d5e6f7a8b9c0d1e2f"
+tanzolang_version: "1.0.0"
+storage_proof_url: "https://web3.storage/proof/QmYM4eZR3DGwkD8tLzU5oMECBfXzYM3PvUxZ2zK7dXPVDm"
+lineage_root_tx_hash: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b"
+
+# Blockchain-specific information
+verification_chain: "ethereum"
+verification_contract: "0x3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b"
+verification_timestamp: "2025-04-30T15:35:22Z"
+
+# Issuer information
+issuer: "TanzoGlyph Foundation"
+issuer_pubkey: "0x9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b"
+signature: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+
+# Optional metadata
+expiration: ~  # No expiration
+registry_url: "https://registry.tanzoglyph.org/glyphs/QmYM4eZR3DGwkD8tLzU5oMECBfXzYM3PvUxZ2zK7dXPVDm"
+
+# Derivation path (if this is a derived glyph)
+derivation_path:
+  - "0x2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b"
+  - "0x3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c"
