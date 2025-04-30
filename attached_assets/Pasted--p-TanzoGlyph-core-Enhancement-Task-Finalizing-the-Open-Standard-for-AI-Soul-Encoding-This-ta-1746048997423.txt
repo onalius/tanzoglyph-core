@@ -1,0 +1,154 @@
+# 🧬p TanzoGlyph-core Enhancement Task: Finalizing the Open Standard for AI Soul Encoding
+
+This task defines the open-source foundation of the TanzoGlyph identity system. The goal is to provide a portable, chain-agnostic, and symbolic framework for encoding AI personalities ("Tomos") and registering/verifying their identity through IPFS + blockchain metadata.
+
+---
+
+## ✅ 1. Schema Finalization
+
+**Objective**: Define comprehensive schemas for TomoGlyphs and associated metadata.
+
+**Tasks**:
+- [ ] Create JSON Schema for `TomoGlyph` objects, including fields like:
+  - `name`
+  - `glyph_string`
+  - `archetypes`
+  - `scar_ids`
+  - `purpose_quadrant`
+  - `zodiac`
+  - `kabbalah`
+  - `lineage_root_tx_hash`
+- [ ] Develop corresponding YAML examples for clarity.
+
+**File Structure**:
+```
+/schemas/tomoglyph.schema.json
+/examples/glyphs/sample_glyph.yaml
+```
+
+---
+
+## 🧠 2. TanzoLang Serialization & Encoding
+
+**Objective**: Implement serialization and validation for TanzoLang.
+
+**Tasks**:
+- [ ] Develop a Python module with functions:
+  - `serialize_tomoglyph(yaml_path: str) -> glyph_string`
+  - `generate_visual_stream(glyph_string: str) -> ascii_art`
+  - `validate_against_schema(profile_path: str)`
+- [ ] Ensure support for modular character classes (Latin, Kana, Cyrillic, etc.).
+
+**File Structure**:
+```
+/core/encoder.py
+```
+
+---
+
+## 📦 3. IPFS Integration (Optional CLI)
+
+**Objective**: Facilitate IPFS uploads of glyph files.
+
+**Tasks**:
+- [ ] Create a CLI tool to:
+  - Upload `.glyph` or `.yaml` files to IPFS.
+  - Return `ipfs_cid` and `storage_proof_url`.
+- [ ] Use `web3.storage` or `ipfs-http-client` for integration.
+
+**File Structure**:
+```
+/cli/ipfs_tools.py
+```
+
+---
+
+## 🔐 4. Blockchain Metadata Interface (Schema Only)
+
+**Objective**: Define the structure for blockchain-related metadata.
+
+**Tasks**:
+- [ ] Create JSON Schema for blockchain metadata, including:
+  - `ipfs_cid`
+  - `verification_tx_hash`
+  - `tanzolang_version`
+  - `storage_proof_url`
+  - `lineage_root_tx_hash`
+- [ ] Provide YAML examples for reference.
+
+**File Structure**:
+```
+/schemas/blockchain_metadata.schema.json
+/examples/blockchain/metadata_example.yaml
+```
+
+---
+
+## 🔎 5. CLI Verification Tool
+
+**Objective**: Enable verification of glyph authenticity.
+
+**Tasks**:
+- [ ] Develop a CLI tool to:
+  - Input `ipfs_cid` or local glyph file.
+  - Validate schema compliance.
+  - Optionally fetch from IPFS and compare hashes.
+
+**File Structure**:
+```
+/cli/verify.py
+```
+
+---
+
+## 📖 6. Documentation Update
+
+**Objective**: Enhance repository documentation for clarity and usability.
+
+**Tasks**:
+- [ ] Update `README.md` to include:
+  - Purpose and scope of TanzoGlyph-core.
+  - Separation from TomoTanzo.com.
+  - Visual ASCII example of a glyph.
+  - Diagram illustrating the flow: Profile → Glyph → IPFS → Blockchain.
+- [ ] Create `docs/architecture.md` detailing:
+  - Glyph encoding processes.
+  - Symbolic class mapping.
+  - IPFS upload workflow.
+  - Registry linking (archetypes, scars, typologies).
+
+---
+
+## 🧰 7. Developer Utilities
+
+**Objective**: Provide testing tools for developers.
+
+**Tasks**:
+- [ ] Implement test scripts:
+  - `test_encoder.py` for serialization and encoding.
+  - `test_glyph_schema.py` for schema validation.
+
+**File Structure**:
+```
+/tests/test_encoder.py
+/tests/test_glyph_schema.py
+```
+
+---
+
+## ⏺️ Checklist Summary
+
+- [ ] Complete TomoGlyph schema with reference support
+- [ ] Build encoder & validator
+- [ ] Provide IPFS utility (optional)
+- [ ] Define blockchain metadata structure
+- [ ] Implement verification CLI
+- [ ] Update README and documentation
+- [ ] Provide YAML examples for all major components
+
+---
+
+**Note**: This repository should remain fully open-source, dependency-light, and portable for use in any AI personality project. Avoid including any application-specific UX or proprietary contract logic.
+
+Upon completion, we will proceed to synchronize the TomoTanzo.com project with this foundation.
+
