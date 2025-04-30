@@ -203,6 +203,48 @@ tanzoglyph/
 └── README.md                   # This file
 ```
 
+## Contributing
+
+We welcome contributions to the TanzoGlyph open standard! Here's how you can contribute:
+
+### Development Setup
+
+1. Fork the repository
+2. Clone your fork: `git clone https://github.com/yourusername/tanzoglyph.git`
+3. Install dependencies: `pip install -r requirements.txt`
+4. Run tests to ensure everything is working: `python -m unittest discover tests`
+
+### Adding New Features
+
+When adding new features, please follow these guidelines:
+
+1. **Character Set Extensions**: If adding new character mappings, define them in a new file in the `registry/glyph_maps` directory
+2. **Schema Updates**: When modifying the profile schema, update both the schema JSON file and relevant documentation
+3. **Test Coverage**: Include tests for any new functionality
+4. **Documentation**: Update the documentation to reflect your changes
+
+### Pull Request Process
+
+1. Update the README.md and documentation with details of changes
+2. Update the tests to cover your changes
+3. Ensure all tests pass
+4. Submit a pull request with a clear description of the changes
+
+### Coding Standards
+
+- Follow PEP 8 style guidelines
+- Write comprehensive docstrings for all functions and classes
+- Use type hints for function parameters and return values
+- Keep functions focused on a single responsibility
+
+## Versioning
+
+We use semantic versioning for the TanzoGlyph standard:
+
+- **Major version** (X.y.z): For incompatible character encoding changes
+- **Minor version** (x.Y.z): For adding functionality in a backward-compatible manner
+- **Patch version** (x.y.Z): For backward-compatible bug fixes and minor enhancements
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
