@@ -1,0 +1,56 @@
+### Replit Agent Task: Add `spiral_encoder.py` to `tanzoglyph-core`
+
+We are introducing a new encoding modality to the TanzoGlyph system: **Signal Spirals**. These spirals visually encode the data structure of a TanzoGlyph (the AI soulprint) into a deterministic, verifiable visual representation. This will serve both as:
+
+- A **formal component** of the TanzoGlyph identity
+- A visual glyph for reference, display, and comparison
+
+---
+
+### Your Task
+Create a new module called `spiral_encoder.py` in the `tanzoglyph-core` repository. This module should be able to:
+
+#### 1. Input
+- Accept a `.glyph` string (TanzoGlyph encoded personality)
+
+#### 2. Output
+- Generate a **2D spiral visualization** of that string
+  - Spiral options: Archimedean or Logarithmic (start with Archimedean)
+  - Each character in the glyph string should map to a point on the spiral
+  - Optional: color-code or size dots based on glyph class (e.g., Latin, Kana, Cyrillic, Symbolic)
+- Export as:
+  - `.png` or `.svg` image file
+  - Optional: return `matplotlib`/`plotly` figure object for further rendering
+
+#### 3. Determinism
+- Spiral layout should be reproducible for a given glyph string
+- Use seeded randomness (e.g., based on hash of glyph string) if randomness is needed for jitter or distribution
+
+#### 4. Optional Features (stretch goals)
+- Support different spiral types (`mode="archimedean"`, `mode="logarithmic"`)
+- Render concentric rings for parentage, realm, scars, etc., based on glyph metadata
+- Allow saving spiral hash or pixel hash for IPFS
+
+---
+
+### Integration
+- Add the module to the repo with CLI support:
+  - `python spiral_encoder.py --glyph <glyph_string> --output <filename>`
+- Update README.md with a section for Spiral Encoding
+- Place output samples in `/examples/spirals/`
+
+---
+
+### Dependencies
+You may use:
+- `matplotlib`
+- `numpy`
+- `hashlib`
+- `argparse`
+
+Do not add heavy dependencies unless required.
+
+---
+
+Let me know once the module is added and working so we can begin linking it to IPFS storage and UI integration on TomoTanzo.com.
+

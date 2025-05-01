@@ -47,6 +47,13 @@ from .image_generator import (
     save_glyph_svg
 )
 
+from .spiral_encoder import (
+    plot_spiral,
+    save_spiral_image,
+    generate_spiral_hash,
+    SpiralType
+)
+
 # For backward compatibility
 encode = encode_profile
 decode = decode_glyph

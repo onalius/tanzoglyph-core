@@ -87,6 +87,11 @@ TanzoGlyph maps different personality components to specific Unicode character b
 
 - Encode/decode between structured profiles (YAML/JSON) and TanzoGlyph format
 - Command-line interface for file processing
+- Multiple visual representation options:
+  - Circular badge diagrams
+  - Grid displays
+  - Fingerprint-style bars
+  - **Signal Spirals** (NEW!)
 - Web interface with visual display of glyphs
 - Matrix-style visualization of encoded glyphs
 - Native integration with tomotanzo-core profile format
@@ -210,6 +215,58 @@ from tanzoglyph.encoder import validate_against_schema
 is_valid = validate_against_schema('profile.yaml')
 ```
 
+## Signal Spirals
+
+Signal Spirals are a new visual representation for TanzoGlyph strings that encode AI personality profiles into a deterministic, visually distinctive spiral pattern. Each character in the glyph string maps to a point on the spiral, with color-coding based on the character class.
+
+### Spiral Types
+
+TanzoGlyph supports two types of spirals:
+
+**Archimedean Spiral**: Points are evenly distributed along the spiral. This provides a balanced visual representation where characters appear at regular intervals.
+
+**Logarithmic Spiral**: Points follow a logarithmic growth pattern, becoming more spread out as the spiral expands. This can help visualize the relative importance of different profile elements.
+
+### Usage
+
+```python
+from tanzoglyph import SpiralType, save_spiral_image
+
+# Generate an Archimedean spiral
+save_spiral_image(
+    glyph="ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂",
+    output_path="my_spiral.png",
+    spiral_type=SpiralType.ARCHIMEDEAN,
+    background_color="#222222",
+    show_legend=True
+)
+
+# Generate a Logarithmic spiral
+save_spiral_image(
+    glyph="ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂",
+    output_path="my_spiral_log.png",
+    spiral_type=SpiralType.LOGARITHMIC,
+    background_color="#222222",
+    show_legend=True
+)
+```
+
+### Command Line
+
+```bash
+# Generate an Archimedean spiral
+python -m tanzoglyph.spiral_encoder --glyph "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂" \
+  --output spiral.png --spiral-type archimedean --background "#222222"
+
+# Generate a Logarithmic spiral
+python -m tanzoglyph.spiral_encoder --glyph "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂" \
+  --output spiral_log.png --spiral-type logarithmic --background "#222222"
+
+# Generate a spiral and its verification hash (for IPFS)
+python -m tanzoglyph.spiral_encoder --glyph "ΔΨΩ⠛⠁⠒AaXzPqＦﾝﾝЖЯЖ●◕○→⇒▇▆▂" \
+  --output spiral.png --hash
+```
+
 ## Project Structure
 
 ```
@@ -221,6 +278,7 @@ tanzoglyph/
 │   ├── decoder.py              # Decoding functionality
 │   ├── display.py              # Visualization tools
 │   ├── image_generator.py      # SVG generation tools
+│   ├── spiral_encoder.py       # Signal Spiral generation
 │   └── tomotanzo_adapter.py    # Tomotanzo format adapter
 ├── registry/                   # Character mapping registry
 │   └── glyph_maps/             # Mapping modules
